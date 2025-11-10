@@ -4,27 +4,25 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:3000",
-      "http://10.198.61.157:3000",
-      "https://tunefully-hyperdiastolic-charleen.ngrok-free.dev",
-    ],
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"],
-  })
-);
+// CORS
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "http://10.198.61.157:3000",
+    "https://tunefully-hyperdiastolic-charleen.ngrok-free.dev"
+  ],
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
+}));
 
 app.use(express.json());
 
+// ========================
 // 🔗 Koneksi MongoDB Atlas
-mongoose
-  .connect(
-    "mongodb+srv://resepuser:qwerty123@nothwezt.fkhhvsb.mongodb.net/resepdb?retryWrites=true&w=majority&appName=Nothwezt"
-  )
+// ========================
+mongoose.connect("mongodb+srv://resepuser:qwerty123@nothwezt.fkhhvsb.mongodb.net/resepdb?retryWrites=true&w=majority&appName=Nothwezt")
   .then(() => console.log("MongoDB Atlas connected"))
-  .catch((err) => console.error("MongoDB Atlas error:", err));
+  .catch(err => console.error("MongoDB Atlas error:", err));
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "❌ MongoDB connection error:"));
@@ -32,7 +30,9 @@ db.once("open", () => {
   console.log("✅ MongoDB connected");
 });
 
+// ========================
 // 🗂 Schema Resep
+// ========================
 const ResepSchema = new mongoose.Schema({
   Title: String,
   Ingredients: String,
@@ -41,15 +41,19 @@ const ResepSchema = new mongoose.Schema({
   URL: String,
 });
 
-// Koleksi: reseps
+// Koleksi "reseps"
 const Resep = mongoose.model("Resep", ResepSchema, "reseps");
 
-// 👉 Default route
+// ========================
+// 🔹 Root endpoint
+// ========================
 app.get("/", (req, res) => {
-  res.send("✅ Server kamu sudah berjalan dan bisa diakses dari HP!");
+  res.send("Server kamu sudah berjalan dan bisa diakses dari HP!");
 });
 
-// 🔍 Search Resep (dengan sinonim & pagination)
+// ========================
+// 🔍 Search endpoint
+// ========================
 app.get("/api/search", async (req, res) => {
   try {
     let q = req.query.q || "";
@@ -57,11 +61,8 @@ app.get("/api/search", async (req, res) => {
     const limit = parseInt(req.query.limit) || 16;
     const skip = (page - 1) * limit;
 
-    if (!q.trim()) {
-      return res.json([]);
-    }
+    if (!q.trim()) return res.json([]);
 
-    // Sinonim
     const synonyms = {
       ayam: ["ayam", "chicken"],
       sapi: ["sapi", "beef", "daging sapi"],
@@ -86,9 +87,9 @@ app.get("/api/search", async (req, res) => {
   }
 });
 
-// 🟦 Tambahan Endpoint Baru (AMAN)
-
-// 👉 GET semua resep
+// ========================
+// 🔹 Ambil semua resep
+// ========================
 app.get("/api/reseps", async (req, res) => {
   try {
     const data = await Resep.find({});
@@ -98,22 +99,24 @@ app.get("/api/reseps", async (req, res) => {
   }
 });
 
-// 👉 GET resep detail based on ID
+// ========================
+// 🔹 Detail by ID (BARU)
+// ========================
 app.get("/api/reseps/:id", async (req, res) => {
   try {
-    const data = await Resep.findById(req.params.id);
+    const resep = await Resep.findById(req.params.id);
 
-    if (!data) {
-      return res.status(404).json({ message: "Resep tidak ditemukan" });
-    }
+    if (!resep) return res.status(404).json({ error: "Resep tidak ditemukan" });
 
-    res.json(data);
+    res.json(resep);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// 🚀 Start Server
+// ========================
+// 🚀 Jalankan server
+// ========================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
