@@ -34,10 +34,10 @@ app.use(express.json());
 // });
 
 // 🔗 Koneksi ke MongoDB
-mongoose.connect("mongodb://127.0.0.1:27017/resepdb", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect("mongodb+srv://resepuser:qwerty123@nothwezt.fkhhvsb.mongodb.net/resepdb?retryWrites=true&w=majority&appName=Nothwezt")
+  .then(() => console.log("MongoDB Atlas connected"))
+  .catch(err => console.error("MongoDB Atlas error:", err));
+
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "❌ MongoDB connection error:"));
@@ -107,7 +107,8 @@ app.get("/api/search", async (req, res) => {
 
 
 // 🚀 Jalankan server
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-  console.log(`🚀 Backend running on http://localhost:${PORT}`);
+  console.log(`Backend running on port ${PORT}`);
 });
