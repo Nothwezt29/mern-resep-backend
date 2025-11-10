@@ -8,10 +8,10 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:3000",
-    "http://10.198.61.157:3000",
-    "https://tunefully-hyperdiastolic-charleen.ngrok-free.dev"
+    "https://nothwezt29.github.io",
+    "https://nothwezt29.github.io/mern-resep"
   ],
-  methods: ["GET", "POST"],
+  methods: ["GET"],
   allowedHeaders: ["Content-Type"]
 }));
 
