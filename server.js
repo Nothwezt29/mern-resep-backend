@@ -5,24 +5,34 @@ const cors = require("cors");
 const app = express();
 
 // CORS
-app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "https://nothwezt29.github.io",
-    "https://nothwezt29.github.io/mern-resep"
-  ],
-  methods: ["GET"],
-  allowedHeaders: ["Content-Type"]
-}));
+//app.use(cors({
+ // origin: [
+   // "http://localhost:3000",
+    //"https://nothwezt29.github.io",
+    //"https://nothwezt29.github.io/mern-resep"
+  //],
+  //methods: ["GET"],
+  //allowedHeaders: ["Content-Type"]
+//}));
+app.use(cors());
 
 app.use(express.json());
 
 // ========================
 // 🔗 Koneksi MongoDB Atlas
 // ========================
-mongoose.connect("mongodb+srv://resepuser:qwerty123@nothwezt.fkhhvsb.mongodb.net/resepdb?retryWrites=true&w=majority&appName=Nothwezt")
-  .then(() => console.log("MongoDB Atlas connected"))
-  .catch(err => console.error("MongoDB Atlas error:", err));
+//mongoose.connect("mongodb+srv://resepuser:qwerty123@nothwezt.fkhhvsb.mongodb.net/resepdb?retryWrites=true&w=majority&appName=Nothwezt")
+  //.then(() => console.log("MongoDB Atlas connected"))
+  //.catch(err => console.error("MongoDB Atlas error:", err));
+// ========================
+// 🔗 Koneksi MongoDB (Local / Atlas)
+// ========================
+const MONGO_URI =
+  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/resepdb";
+
+mongoose.connect(MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.error("❌ MongoDB error:", err));
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "❌ MongoDB connection error:"));
@@ -34,7 +44,7 @@ db.once("open", () => {
 // 🗂 Schema Resep
 // ========================
 const ResepSchema = new mongoose.Schema({
-  Title: String,
+  Title: { type: String, index: true },
   Ingredients: String,
   Steps: String,
   Loves: Number,
@@ -117,7 +127,7 @@ app.get("/api/reseps/:id", async (req, res) => {
 // ========================
 // 🚀 Jalankan server
 // ========================
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });
